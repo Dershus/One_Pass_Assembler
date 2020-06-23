@@ -1,0 +1,52 @@
+Loc.    Source       statement
+=====   ==================================
+01000    COPY  START           1000
+01000     EOF   BYTE         C'EOF'
+01003   THREE   WORD              3
+01006    ZERO   WORD              0
+01009  RETADR   RESW              1
+0100c  LENGTH   RESW              1
+0100f  BUFFER   RESB           4096
+00000      .    RESB           4096
+0200f   FIRST    STL         RETADR
+02012   CLOOP   JSUB          RDREC
+02015            LDA         LENGTH
+02018           COMP           ZERO
+0201b            JEQ         ENDFIL
+0201e           JSUB          WRREC
+02021              J          CLOOP
+02024  ENDFIL    LDA            EOF
+02027            STA         BUFFER
+0202a            LDA          THREE
+0202d            STA         LENGTH
+02030           JSUB          WRREC
+02033            LDL         RETADR
+02036           RSUB               
+00000. Subroutine RDREC   RSUB               
+02039   INPUT   BYTE          X'F1'
+0203a  MAXLEN   WORD           4096
+00000      .    WORD           4096
+0203d   RDREC    LDX           ZERO
+02040            LDA           ZERO
+02043   RLOOP     TD          INPUT
+02046            JEQ          RLOOP
+02049             RD          INPUT
+0204c           COMP           ZERO
+0204f            JEQ           EXIT
+02052           STCH       BUFFER,X
+02055            TIX         MAXLEN
+02058            JLT          RLOOP
+0205b    EXIT    STX         LENGTH
+0205e           RSUB               
+00000. Subroutine WRREC   RSUB               
+02061  OUTPUT   BYTE          X'05'
+00000      .    BYTE          X'05'
+02062   WRREC    LDX           ZERO
+02065   WLOOP     TD         OUTPUT
+02068            JEQ          WLOOP
+0206b           LDCH       BUFFER,X
+0206e             WD         OUTPUT
+02071            TIX         LENGTH
+02074            JLT          WLOOP
+02077           RSUB               
+0207a            END          FIRST
